@@ -1,3 +1,13 @@
+"""
+Proyecto: Glosae digitalibus
+Autor: Jairo A. Melo Flórez
+Fecha: septiembre 2019
+
+Tres funciones que recuperan información específica de las glosas del proyecto Salamanca y el título de la obra.
+También aprovecho la función `salsa()` para recuperar la información con requests y BeautifulSoup
+sin tener que hacerlo varias veces en el mismo script.
+"""
+
 import requests
 from bs4 import BeautifulSoup
 
@@ -10,7 +20,7 @@ def salsa(url):
     re = requests.get(url)
     cont = re.content
 
-    return BeautifulSoup(cont, 'xml')
+    return BeautifulSoup(cont, 'lxml')
 
 
 '''

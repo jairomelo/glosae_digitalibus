@@ -1,10 +1,20 @@
+"""
+Proyecto: Glosae digitalibus
+Autor: Jairo A. Melo Flórez
+Fecha: septiembre 2019
+
+Recupera la información de las glosas y las guarda en un archivo de texto separado por obra.
+El nombre del archivo se guarda de acuerdo con el criterio utilizado por el proyecto
+La Escuela de Salamanca
+"""
+
 import codecs
 import os
 
 import requests
-from bs4 import BeautifulSoup
 
 from get_glosa import glosa
+from get_glosa import salsa
 from get_glosa import titulo
 
 '''
@@ -27,18 +37,11 @@ base_url = "https://www.salamanca.school/es/"
 
 url = "{}works.html".format(base_url)
 
-try:
-    resultado = requests.get(url)
-except requests.exceptions.HTTPError:
-    raise
-
-contenido = resultado.content
-
 '''
 prepara la sopa :D
 '''
 
-sopa = BeautifulSoup(contenido, 'xml')
+sopa = salsa(url)
 
 for columnas in sopa.find_all('a', class_="lead"):  # Hallar los enlaces (as usual)
     enlace = columnas.get('href')
@@ -61,15 +64,12 @@ for columnas in sopa.find_all('a', class_="lead"):  # Hallar los enlaces (as usu
         print(titul)
         try:
             guardar_en.write(titul)
-
             #  Scraping de la página de destino (por elemento del índice)
-            obtener_destino = requests.get(link_destino)
-            contenido_destino = obtener_destino.content
-            sopa_destino = BeautifulSoup(contenido_destino, 'xml')
-            # Intentamos hallar la tabla de contenido. Si no la encuentra, no regresa nada :D
+            sopa_destino = salsa(link_destino)
+            # Hallar la tabla de contenido para iterar la búsqueda
             for tabla in sopa_destino.find_all('ul', class_='dropdown-menu scrollable-menu'):
                 for enlaces in tabla.find_all('a'):
-                    print(enlaces.text)  # La página de las glosas (no la agregamos al texto)
+                    print(enlaces.text)  # La página de las glosas (no la agregamos al archivo de texto)
                     enlace_final = enlaces.get('href')
                     link_final = "{}{}".format(base_url, enlace_final)
                     try:
@@ -77,6 +77,9 @@ for columnas in sopa.find_all('a', class_="lead"):  # Hallar los enlaces (as usu
                         guardar_en.write(texto_glosa)
                     except requests.exceptions.RequestException as e:
                         print(e)
+                        guardar_en.close()
+                        os.remove(ruta_archivo)  # Eliminamos el archivo para evitar descargas incompletas
+
         except TypeError:
             guardar_en.close()
             os.remove(ruta_archivo)
