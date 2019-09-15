@@ -10,6 +10,7 @@ La Escuela de Salamanca
 
 import codecs
 import os
+import time
 
 import requests
 
@@ -67,6 +68,9 @@ for columnas in sopa.find_all('a', class_="lead"):  # Hallar los enlaces (as usu
             #  Scraping de la página de destino (por elemento del índice)
             sopa_destino = salsa(link_destino)
             # Hallar la tabla de contenido para iterar la búsqueda
+            # TODO: Este método regresa la información repetida.
+            #  Es necesario corregir esto, tal vez haciendo un llamado a la página completa. Probar con request-html
+            #  o Selenium.
             for tabla in sopa_destino.find_all('ul', class_='dropdown-menu scrollable-menu'):
                 for enlaces in tabla.find_all('a'):
                     print(enlaces.text)  # La página de las glosas (no la agregamos al archivo de texto)
@@ -79,6 +83,10 @@ for columnas in sopa.find_all('a', class_="lead"):  # Hallar los enlaces (as usu
                         print(e)
                         guardar_en.close()
                         os.remove(ruta_archivo)  # Eliminamos el archivo para evitar descargas incompletas
+                    except requests.exceptions.ConnectionError as e:
+                        print(e)
+                        time.sleep(25)
+                        pass
 
         except TypeError:
             guardar_en.close()

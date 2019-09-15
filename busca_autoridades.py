@@ -30,12 +30,14 @@ def buscartxt(directorio):
 
 archivos = buscartxt('obras_ES')
 
-nombres = ["Aristóteles", "Aristoteles", "Arist.", "Ari.", "Ethicorum", "Ethico."]
+nombres = ["Aristoteles", "Aristóteles", "Arist.", "Ari.", "Ethicorum", "Ethic."]
 
 for archivo in archivos:
-    print("Resultados encontrados en {}:".format(archivo))
-    for autores in nombres:
-        try:
+    try:
+        print("Resultados para {}:".format(archivo))
+        for autores in nombres:
             encuentrapalabra(archivo, [autores])
-        except FileExistsError as e:
-            print(e)
+    except FileNotFoundError as e:
+        print("{}. Posiblemente el nombre del archivo o la ruta está mal escrito.".format(e))
+    except PermissionError:
+        print("No se puede buscar en un directorio")
